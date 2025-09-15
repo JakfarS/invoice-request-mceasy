@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Invoice Request Tree View -->
+    <record id="view_invoice_request_tree" model="ir.ui.view">
+        <field name="name">invoice.request.tree</field>
+        <field name="model">invoice.request</field>
+        <field name="arch" type="xml">
+            <tree string="Invoice Requests">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="sale_id"/>
+                <field name="invoice_id"/>
+                <field name="state"/>
+                <field name="request_date"/>
+                <field name="approval_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Invoice Request Form View -->
+    <record id="view_invoice_request_form" model="ir.ui.view">
+        <field name="name">invoice.request.form</field>
+        <field name="model">invoice.request</field>
+        <field name="arch" type="xml">
+            <form string="Invoice Request">
+                <header>
+                    <button name="approval_request" string="Approve" type="object" 
+                            class="btn-primary" invisible="state != 'pending'"/>
+                    <button name="action_reset_to_pending" string="Reset to Pending" type="object" 
+                            class="btn-secondary" invisible="state not in ['approved', 'rejected']"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,approved,rejected"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="sale_id"/>
+                            <field name="invoice_id" readonly="state != 'approved'"/>
+                        </group>
+                        <group>
+                            <field name="request_date"/>
+                            <field name="approval_date"/>
+                            <field name="approved_by"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Add notes about this request..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Invoice Request Search View -->
+    <record id="view_invoice_request_search" model="ir.ui.view">
+        <field name="name">invoice.request.search</field>
+        <field name="model">invoice.request</field>
+        <field name="arch" type="xml">
+            <search string="Invoice Requests">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="sale_id"/>
+                <field name="invoice_id"/>
+                <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Rejected" name="rejected" domain="[('state', '=', 'rejected')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Partner" name="group_partner" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Request Date" name="group_request_date" context="{'group_by': 'request_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Invoice Request Action -->
+    <record id="action_invoice_request" model="ir.actions.act_window">
+        <field name="name">Invoice Requests</field>
+        <field name="res_model">invoice.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_invoice_request_search"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new invoice request
+            </p>
+            <p>
+                Invoice requests allow partners to request invoices for their sale orders
+                through an external interface without logging into Odoo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Invoice Request Action pending -->
+    <record id="action_invoice_request_pending" model="ir.actions.act_window">
+        <field name="name">Invoice Requests</field>
+        <field name="res_model">invoice.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_invoice_request_search"/>
+        <field name="domain">[('state', '=', 'pending')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new invoice request pending
+            </p>
+            <p>
+                Invoice requests allow partners to request invoices for their sale orders
+                through an external interface without logging into Odoo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Invoice Request Action approved -->
+    <record id="action_invoice_request_approved" model="ir.actions.act_window">
+        <field name="name">Invoice Requests</field>
+        <field name="res_model">invoice.request</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_invoice_request_search"/>
+        <field name="domain">[('state', '=', 'approved')]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new invoice request approved
+            </p>
+            <p>
+                Invoice requests allow partners to request invoices for their sale orders
+                through an external interface without logging into Odoo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_invoice_request_root" 
+              name="Invoice Requests" 
+              sequence="10"/>
+
+    <menuitem id="menu_invoice_request" 
+              name="All Requests" 
+              parent="menu_invoice_request_root" 
+              action="action_invoice_request" 
+              sequence="10"/>
+
+    <menuitem id="menu_invoice_request_pending" 
+              name="Pending Requests" 
+              parent="menu_invoice_request_root" 
+              action="action_invoice_request_pending" 
+              sequence="20"/>
+              <!-- context="{'search_default_pending': 1}"/> -->
+
+    <menuitem id="menu_invoice_request_approved" 
+              name="Approved Requests" 
+              parent="menu_invoice_request_root" 
+              action="action_invoice_request_approved" 
+              sequence="30"/>
+              <!-- context="{'search_default_approved': 1}"/> -->
+</odoo>

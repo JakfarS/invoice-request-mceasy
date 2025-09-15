@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: odoo
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - odoo-network
+
+  odoo:
+    image: odoo:17
+    depends_on:
+      - db
+    command: >
+      odoo
+      --db_host=db
+      --db_port=5432
+      --db_user=odoo
+      --db_password=odoo
+    ports:
+      - "8069:8069"
+    volumes:
+      - ./odoo_module:/mnt/extra-addons/odoo_module
+      - ./odoo.conf:/etc/odoo/odoo.conf
+      - odoo-web-data:/var/lib/odoo
+    networks:
+      - odoo-network
+
+
+  client-app:
+    build:
+      context: ./client_app
+      dockerfile: Dockerfile
+    depends_on:
+      - odoo
+    environment:
+      - ODOO_URL=http://odoo:8069
+      - ODOO_DB=odoo
+      - ODOO_USERNAME=admin
+      - ODOO_PASSWORD=admin
+      - PORT=4000
+      - DEBUG=False
+    ports:
+      - "4000:4000"
+    networks:
+      - odoo-network
+    restart: unless-stopped
+
+volumes:
+  odoo-db-data:
+  odoo-web-data:
+  odoo-config:
+
+networks:
+  odoo-network:
+    driver: bridge

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Partner Form View Extension -->
+    <record id="view_partner_form_invoice_request" model="ir.ui.view">
+        <field name="name">res.partner.form.invoice.request</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <notebook position="inside">
+                <page string="Invoice Requests" name="invoice_requests">
+                    <group>
+                        <group>
+                            <field name="external_token" readonly="1"/>
+                            <button name="generate_external_token" string="Generate Token" type="object" 
+                                    class="btn-secondary" invisible="external_token != False"/>
+                        </group>
+                        <group>
+                            <field name="invoice_request_count"/>
+                        </group>
+                    </group>
+                    <field name="invoice_request_ids" nolabel="1">
+                        <tree>
+                            <field name="name"/>
+                            <field name="sale_id"/>
+                            <field name="invoice_id"/>
+                            <field name="state"/>
+                            <field name="request_date"/>
+                        </tree>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <!-- Partner Tree View Extension -->
+    <record id="view_partner_tree_invoice_request" model="ir.ui.view">
+        <field name="name">res.partner.tree.invoice.request</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <field name="email" position="after">
+                <field name="external_token" optional="hide"/>
+            </field>
+        </field>
+    </record>
+</odoo>

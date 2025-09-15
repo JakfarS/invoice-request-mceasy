@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <templates id="template" xml:space="preserve">
+        <!-- Template for the widget ExternalInvoiceForm. -->
+        <t t-name="odoo_module.ExternalInvoiceForm">
+            <div t-ref="root">
+                <!-- <div t-if="state.success" class="alert alert-success" role="status">
+                    <span t-if="state.success.message" t-esc="state.success.message"/>
+                    <span t-else="">Thank You!</span>
+                    <a t-if="state.success.redirect_url" t-att-href="state.success.redirect_url">
+                        <t t-if="state.success.redirect_message" t-esc="state.success.redirect_message"/>
+                        <t t-else="">Click here to see your document.</t>
+                    </a>
+                </div>
+                <t t-else=""> -->
+                    <!-- Partner Information -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary">
+                                <i class="fa fa-user me-2"></i>
+                                Partner Information
+                            </h5>
+                            <div class="bg-light p-3 rounded">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <strong>Name:</strong> <span t-esc="props.partner.name"/>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Email:</strong> <span t-esc="props.partner.email or 'N/A'"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Request Form -->
+                    <div class="row mb-4" id="new-request-section">
+                        <div class="col-12">
+                            <h5 class="text-success">
+                                <i class="fa fa-plus-circle me-2"></i>
+                                Create New Invoice Request
+                            </h5>
+                            <form id="invoice-request-form" method="POST">
+                                <div class="mb-3">
+                                    <label for="sale_order" class="form-label">Select Sale Order</label>
+                                    <select class="form-select" id="sale_order" name="sale_order_id" required="required">
+                                        <option value="">Choose a sale order...</option>
+                                        <t t-foreach="props.sale_orders" t-as="so" t-key="so.id">
+                                            <option t-att-value="so.id" t-esc="(so.name || '') + ' - ' + (so.amount_total != null ? so.amount_total : 0)"/>
+                                        </t>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a sale order.
+                                    </div>
+                                </div>
+                                <div class="o_invoice_request_controls my-3">
+                                    <div t-if="state.error" class="o_invoice_request_error_msg alert alert-danger" role="status">
+                                        <t t-esc="state.error"/>
+                                    </div>
+                                    <div class="text-end my-3">
+                                        <button type="submit" class="o_invoice_request_submit btn btn-success" t-on-click.prevent="onClickSubmit">
+                                            <i class="fa fa-paper-plane me-2"/>
+                                            Request Invoice
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Pending Requests -->
+                    <div class="row mb-4" id="pending-requests-section" t-if="props.pending_requests && props.pending_requests.length">
+                        <div class="col-12">
+                            <h5 class="text-warning">
+                                <i class="fa fa-clock me-2"></i>
+                                Pending Requests
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Request #</th>
+                                            <th>Name</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="props.pending_requests" t-as="req" t-key="req.id">
+                                            <tr>
+                                                <td t-esc="req.id"/>
+                                                <td t-esc="req.name"/>
+                                                <td><span class="badge bg-warning">Pending</span></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approved Requests with Invoices -->
+                    <div class="row mb-4" id="approved-requests-section" t-if="props.approved_requests && props.approved_requests.length">
+                        <div class="col-12">
+                            <h5 class="text-success">
+                                <i class="fa fa-check-circle me-2"></i>
+                                Available Invoices
+                            </h5>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Request #</th>
+                                            <th>Name</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="props.approved_requests" t-as="req" t-key="req.id">
+                                            <tr>
+                                                <td t-esc="req.id"/>
+                                                <td t-esc="req.name"/>
+                                                <td><span class="badge bg-success">Approved</span></td>
+                                                <td>
+                                                    <a t-att-href="'/external/sale-invoice/' + props.token + '/download/' + req.id" 
+                                                       class="btn btn-primary btn-sm" title="Download PDF">
+                                                        <i class="fa fa-download me-1"></i>
+                                                        Download PDF
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- No Data Messages -->
+                    <div class="row" t-if="!(props.sale_orders && props.sale_orders.length) && !(props.pending_requests && props.pending_requests.length) && !(props.approved_requests && props.approved_requests.length)">
+                        <div class="col-12 text-center">
+                            <div class="alert alert-info">
+                                <i class="fa fa-info-circle me-2"></i>
+                                No sale orders available for invoicing or pending requests found.
+                            </div>
+                        </div>
+                    </div>
+                <!-- </t> -->
+            </div>
+        </t>
+    </templates>
+</odoo>

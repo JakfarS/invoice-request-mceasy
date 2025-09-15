@@ -1,0 +1,80 @@
+{
+    "info": {
+      "name": "Odoo Sale Order API (Dynamic)",
+      "description": "Postman collection for managing Sale Orders with dynamic variables (base_url, so_id, partner_id, product_id)",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+      { "key": "base_url", "value": "http://localhost:4000" },
+      { "key": "so_id", "value": "10" },
+      { "key": "partner_id", "value": "8" },
+      { "key": "partner_id_2", "value": "3" },
+      { "key": "product_id", "value": "3" }
+    ],
+    "item": [
+      {
+        "name": "Create SO",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"partner_id\": {{partner_id}},\n  \"order_line\": [\n    [0, 0, {\"product_id\": {{product_id}}, \"product_uom_qty\": 2, \"price_unit\": 100.0, \"name\": \"Test Product\"}]\n  ]\n}"
+          },
+          "url": { "raw": "{{base_url}}/api/sale-orders", "host": ["{{base_url}}"], "path": ["api", "sale-orders"] }
+        }
+      },
+      {
+        "name": "Update SO",
+        "request": {
+          "method": "PUT",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"partner_id\": {{partner_id_2}}\n}"
+          },
+          "url": { "raw": "{{base_url}}/api/sale-orders/{{so_id}}", "host": ["{{base_url}}"], "path": ["api", "sale-orders", "{{so_id}}"] }
+        }
+      },
+      {
+        "name": "Get list SO",
+        "request": {
+          "method": "GET",
+          "url": { "raw": "{{base_url}}/api/sale-orders", "host": ["{{base_url}}"], "path": ["api", "sale-orders"] }
+        }
+      },
+      {
+        "name": "Get SO detail",
+        "request": {
+          "method": "GET",
+          "url": { "raw": "{{base_url}}/api/sale-orders/{{so_id}}", "host": ["{{base_url}}"], "path": ["api", "sale-orders", "{{so_id}}"] }
+        }
+      },
+      {
+        "name": "Action Confirm",
+        "request": {
+          "method": "POST",
+          "url": { "raw": "{{base_url}}/api/sale-orders/{{so_id}}/confirm", "host": ["{{base_url}}"], "path": ["api", "sale-orders", "{{so_id}}", "confirm"] }
+        }
+      },
+      {
+        "name": "Action Cancel",
+        "request": {
+          "method": "POST",
+          "url": { "raw": "{{base_url}}/api/sale-orders/{{so_id}}/cancel", "host": ["{{base_url}}"], "path": ["api", "sale-orders", "{{so_id}}", "cancel"] }
+        }
+      },
+      {
+        "name": "Action Reset",
+        "request": {
+          "method": "POST",
+          "url": { "raw": "{{base_url}}/api/sale-orders/{{so_id}}/reset", "host": ["{{base_url}}"], "path": ["api", "sale-orders", "{{so_id}}", "reset"] }
+        }
+      }
+    ]
+  }
+  

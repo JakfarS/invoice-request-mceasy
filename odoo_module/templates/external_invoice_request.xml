@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- External Invoice Request Form Template -->
+    <template id="external_invoice_form" name="External Invoice Request Form">
+        <t t-call="portal.frontend_layout">
+            <t t-set="title">Invoice Request - <t t-esc="partner.name"/></t>
+            <div class="container mt-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fa fa-file-invoice me-2"></i>
+                                    Invoice Request System
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <owl-component name="odoo_module.external_invoice_form" t-att-props="external_invoice_form_props_json"/>
+                                
+                                <!-- Partner Information -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <h5 class="text-primary">
+                                            <i class="fa fa-user me-2"></i>
+                                            Partner Information
+                                        </h5>
+                                        <div class="bg-light p-3 rounded">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <strong>Name:</strong>
+                                                    <span t-esc="partner.name"/>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <strong>Email:</strong>
+                                                    <span t-esc="partner.email or 'N/A'"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Server-rendered fallback UI to ensure visibility even if OWL doesn't mount -->
+                                <div class="mt-4 border rounded p-3">
+                                    <h5 class="mb-3">Create New Invoice Request</h5>
+                                    <form t-att-action="'/external/sale-invoice/' + token + '/request'" method="post">
+                                        <div class="mb-3">
+                                            <label for="sale_order_fallback" class="form-label">Select Sale Order</label>
+                                            <select id="sale_order_fallback" name="sale_order_id" class="form-select" required="required">
+                                                <option value="">Choose a sale order...</option>
+                                                <t t-foreach="sale_orders" t-as="so">
+                                                    <option t-att-value="so.id">
+                                                        <t t-esc="so.name"/> - <t t-esc="so.amount_total"/>
+                                                    </option>
+                                                </t>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-paper-plane me-1"/> Request Invoice
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Full server-rendered layout (always visible) -->
+                                <div class="mt-4">
+                                    
+
+                                    <!-- Pending Requests -->
+                                    <div class="row mb-4" t-if="pending_requests">
+                                        <div class="col-12">
+                                            <h5 class="text-warning">
+                                                <i class="fa fa-clock me-2"></i>
+                                                Pending Requests
+                                            </h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Request #</th>
+                                                            <th>Sale Order</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="pending_requests" t-as="req">
+                                                            <tr>
+                                                                <td t-esc="req.name"/>
+                                                                <td t-esc="req.sale_id.name"/>
+                                                                <td><span class="badge bg-warning" t-esc="req.state"/></td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Approved Requests with Invoices -->
+                                    <div class="row mb-4" t-if="approved_requests">
+                                        <div class="col-12">
+                                            <h5 class="text-success">
+                                                <i class="fa fa-check-circle me-2"></i>
+                                                Available Invoices
+                                            </h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Request #</th>
+                                                            <th>Sale Order</th>
+                                                            <th>Invoice</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="approved_requests" t-as="req">
+                                                            <tr>
+                                                                <td t-esc="req.name"/>
+                                                                <td t-esc="req.sale_id.name"/>
+                                                                <td t-esc="req.invoice_id.name"/>
+                                                                <td>
+                                                                    <a t-att-href="'/external/sale-invoice/' + token + '/download/' + str(req.invoice_id.id)" class="btn btn-primary btn-sm">
+                                                                        <i class="fa fa-download me-1"></i>
+                                                                        Download PDF
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Token Not Found Template -->
+    <template id="token_not_found" name="Token Not Found">
+        <t t-call="web.external_layout">
+            <t t-set="title">Access Denied</t>
+            <div class="container mt-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fa fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                                <h3>Access Denied</h3>
+                                <p class="text-muted" t-esc="message"/>
+                                <a href="/" class="btn btn-primary">Go to Homepage</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
